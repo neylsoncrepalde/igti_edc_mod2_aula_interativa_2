@@ -7,7 +7,7 @@ module "eks" {
 
   tags = {
     Environment = "dev"
-    Project  = variable.prefix
+    Project     = var.prefix
   }
 
   vpc_id = module.vpc.vpc_id
