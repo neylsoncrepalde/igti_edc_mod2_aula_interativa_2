@@ -3,7 +3,6 @@ resource "aws_db_instance" "default" {
   engine               = "sqlserver-ex"
   engine_version       = "15.00.4198.2.v1"
   instance_class       = "db.t3.small"
-  db_name              = "igti-edc-mod2"
   username             = "admin"
   password             = "admin"
   skip_final_snapshot  = true
