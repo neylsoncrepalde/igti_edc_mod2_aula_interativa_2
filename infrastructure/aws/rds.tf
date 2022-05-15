@@ -6,7 +6,6 @@ resource "aws_db_instance" "default" {
   username             = "admin"
   password             = "administrator"
   skip_final_snapshot  = true
-  parameter_group_name = "sqlserver-ee-15.0"
   publicly_accessible  = true
   license_model        = "license-included"
 }
