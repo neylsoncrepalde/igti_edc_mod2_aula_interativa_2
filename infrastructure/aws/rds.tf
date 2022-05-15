@@ -8,4 +8,5 @@ resource "aws_db_instance" "default" {
   password            = "admin"
   skip_final_snapshot = true
   publicly_accessible = true
+  license_model       = "general-public-license"
 }
