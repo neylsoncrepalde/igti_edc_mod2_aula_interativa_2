@@ -32,4 +32,4 @@ jobs:
       run: |
         cd infrastructure/aws
         $COMMAND_IAC init
-        $COMMAND_IAC destroy
+        $COMMAND_IAC destroy -auto-approve
