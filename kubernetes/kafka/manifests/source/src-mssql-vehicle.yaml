@@ -1,0 +1,36 @@
+apiVersion: "kafka.strimzi.io/v1beta2"
+kind: "KafkaConnector"
+metadata:
+  # connector name
+  name: "ingest-src-mssql-vehicle-json-0bf03203"
+  namespace: kafka
+  labels:
+    # kafka connect [cluster] name
+    strimzi.io/cluster: edh
+spec:
+  class: io.confluent.connect.jdbc.JdbcSourceConnector
+  tasksMax: 1
+  config:
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: true
+    value.converter.schemas.enable: true
+    connection.url: "jdbc:sqlserver://terraform-20220517003544022900000004.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
+    connection.user: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_username}"
+    connection.password: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_password}"
+    connection.attempts: "2"
+    query: "SELECT * FROM dbo.vehicle"
+    mode: "incrementing"
+    topic.prefix: "src-mssql-vehicle"
+    incrementing.column.name: "id"
+    valincrate.non.null: "false"
+    transforms: "createKey,extractInt,InsertTopic,InsertSourceDetails"
+    transforms.createKey.type: "org.apache.kafka.connect.transforms.ValueToKey"
+    transforms.createKey.fields: "id"
+    transforms.extractInt.type: "org.apache.kafka.connect.transforms.ExtractField$Key"
+    transforms.extractInt.field: "id"
+    transforms.InsertTopic.type: "org.apache.kafka.connect.transforms.InsertField$Value"
+    transforms.InsertTopic.topic.field: "messagetopic"
+    transforms.InsertSourceDetails.type: "org.apache.kafka.connect.transforms.InsertField$Value"
+    transforms.InsertSourceDetails.static.field: "messagesource"
+    transforms.InsertSourceDetails.static.value: "sqlserver"

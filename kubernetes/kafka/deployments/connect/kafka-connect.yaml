@@ -1,0 +1,59 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  # kafka connect cluster name
+  name: edh
+  annotations:
+     strimzi.io/use-connector-resources: "true"
+  labels:
+    app: edh
+spec:
+  version: 3.1.0
+  replicas: 1
+  bootstrapServers: edh-kafka-bootstrap:9093
+  image: neylsoncrepalde/kafka-connect-strimzi:0.28.0-kafka-3.1.0
+  tls:
+    trustedCertificates:
+      - secretName: edh-cluster-ca-cert
+        certificate: ca.crt
+  config:
+    # default config [strimzi]
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: true
+    value.converter.schemas.enable: true
+    internal.key.converter: org.apache.kafka.connect.json.JsonConverter
+    internal.value.converter: org.apache.kafka.connect.json.JsonConverter
+    internal.key.converter.schemas.enable: false
+    internal.value.converter.schemas.enable: false
+
+    # config connect cluster
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+
+    # file config provider
+    config.providers: file
+    config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider 
+  
+  # external configs
+  externalConfiguration:
+    volumes:
+      - name: connector-config-mssql
+        secret:
+          secretName: mssql-credentials
+      - name: connector-config-aws-s3
+        secret:
+          secretName: aws-s3-credentials
+  resources:
+  # requests and limits
+    requests:
+        memory: 2Gi
+        cpu: 500m
+    limits:
+        memory: 3Gi
+        cpu: 1000m
