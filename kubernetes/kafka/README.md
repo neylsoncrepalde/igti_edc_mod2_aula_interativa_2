@@ -1,6 +1,6 @@
 ```sh
 # access working directory
-cd ep-2-kafka-on-kubernetes
+cd kubernetes/kafka
 
 # add helm chart
 helm repo add strimzi https://strimzi.io/charts/
@@ -38,8 +38,8 @@ edh-zookeeper-2                         1/1     Running   0          2m3s
 strimzi-cluster-operator-6d48cd-7pzm6   1/1     Running   0          5m19s
 
 # create secret for mssql and s3
-kubectl create secret generic mssql-credentials --from-file=credentials/mssql-credentials.properties --namespace kafka
-kubectl create secret generic aws-s3-credentials --from-file=credentials/aws-s3-credentials.properties --namespace kafka
+kubectl create secret generic mssql-credentials --from-file=deployments/connect/mssql-credentials.properties --namespace kafka
+kubectl create secret generic aws-s3-credentials --from-file=deployments/connect/aws-s3-credentials.properties --namespace kafka
 
 # terminal
 $ secret/mssql-credentials created
@@ -86,25 +86,25 @@ docker push <username>/kafka-connect-strimzi:0.28.0-kafka-3.1.0
 kubectl apply -f deployments/connect/kafka-connect.yaml -n kafka
 
 # terminal
-$ kafkaconnect.kafka.strimzi.io/edh created
+$ kafkaconnect.kafka.strimzi.io/kafka-class created
 
 # expected ouput after a few seconds
-NAME                                    READY   STATUS    RESTARTS   AGE
-edh-connect-69d6885b68-g8pxw            1/1     Running   0          4m2s
-edh-kafka-0                             1/1     Running   0          11m
-edh-kafka-1                             1/1     Running   0          11m
-edh-kafka-2                             1/1     Running   0          11m
-edh-zookeeper-0                         1/1     Running   0          12m
-edh-zookeeper-1                         1/1     Running   0          12m
-edh-zookeeper-2                         1/1     Running   0          12m
-strimzi-cluster-operator-6d48cd-7pzm6   1/1     Running   0          15m
+NAME                                            READY   STATUS    RESTARTS   AGE
+kafka-class-connect-69d6885b68-g8pxw            1/1     Running   0          4m2s
+kafka-class-kafka-0                             1/1     Running   0          11m
+kafka-class-kafka-1                             1/1     Running   0          11m
+kafka-class-kafka-2                             1/1     Running   0          11m
+kafka-class-zookeeper-0                         1/1     Running   0          12m
+kafka-class-zookeeper-1                         1/1     Running   0          12m
+kafka-class-zookeeper-2                         1/1     Running   0          12m
+strimzi-cluster-operator-6d48cd-7pzm6           1/1     Running   0          15m
 
 # check kafkaconnect
 kubectl get kafkaconnect -n kafka
 
 # expected output
-NAME   DESIRED REPLICAS   READY
-edh    1                  True
+NAME           DESIRED REPLICAS   READY
+kafka-class    1                  True
 
 # create connectors ingest-src-mssql-vehicle-json-0bf03203
 kubectl apply -f manifests/source/src-mssql-vehicle.yaml -n kafka
@@ -119,7 +119,7 @@ NAME                                     CLUSTER   CONNECTOR CLASS              
 ingest-src-mssql-vehicle-json-0bf03203   edh       io.confluent.connect.jdbc.JdbcSourceConnector   1           True
 
 # see topic
-kubectl -n kafka exec edh-kafka-0 -c kafka -i -t -- bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+kubectl -n kafka exec kafka-class-kafka-0 -c kafka -i -t -- bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 
 # expected output
 __consumer_offsets
@@ -129,7 +129,7 @@ connect-cluster-status
 src-mssql-vehicle
 
 # get data on topic with group consumer
-kubectl exec edh-kafka-0 -n kafka -c kafka -i -t -- \
+kubectl exec kafka-class-kafka-0 -n kafka -c kafka -i -t -- \
   bin/kafka-console-consumer.sh \
     --bootstrap-server localhost:9092 \
     --property print.key=true \
@@ -137,7 +137,7 @@ kubectl exec edh-kafka-0 -n kafka -c kafka -i -t -- \
     --group MyConsumer
 
 # get all data on topic
-kubectl exec edh-kafka-0 -n kafka -c kafka -i -t -- \
+kubectl exec kafka-class-kafka-0 -n kafka -c kafka -i -t -- \
   bin/kafka-console-consumer.sh \
     --bootstrap-server localhost:9092 \
     --property print.key=true \

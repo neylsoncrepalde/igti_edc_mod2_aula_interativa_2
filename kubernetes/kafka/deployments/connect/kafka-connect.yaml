@@ -2,19 +2,19 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnect
 metadata:
   # kafka connect cluster name
-  name: edh
+  name: kafka-class
   annotations:
      strimzi.io/use-connector-resources: "true"
   labels:
-    app: edh
+    app: kafka-class
 spec:
   version: 3.1.0
   replicas: 1
-  bootstrapServers: edh-kafka-bootstrap:9093
+  bootstrapServers: kafka-class-kafka-bootstrap:9093
   image: neylsoncrepalde/kafka-connect-strimzi:0.28.0-kafka-3.1.0
   tls:
     trustedCertificates:
-      - secretName: edh-cluster-ca-cert
+      - secretName: kafka-class-cluster-ca-cert
         certificate: ca.crt
   config:
     # default config [strimzi]

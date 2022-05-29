@@ -2,11 +2,11 @@ apiVersion: "kafka.strimzi.io/v1beta2"
 kind: "KafkaConnector"
 metadata:
   # connector name
-  name: "ingest-src-mssql-vehicle-json-0bf03203"
+  name: "ingest-src-mssql-vehicle-json-0bf03204"
   namespace: kafka
   labels:
     # kafka connect [cluster] name
-    strimzi.io/cluster: edh
+    strimzi.io/cluster: kafka-class
 spec:
   class: io.confluent.connect.jdbc.JdbcSourceConnector
   tasksMax: 1
@@ -15,13 +15,13 @@ spec:
     value.converter: org.apache.kafka.connect.json.JsonConverter
     key.converter.schemas.enable: true
     value.converter.schemas.enable: true
-    connection.url: "jdbc:sqlserver://terraform-20220517003544022900000004.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
+    connection.url: "jdbc:sqlserver://terraform-20220529132308340900000004.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
     connection.user: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_username}"
     connection.password: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_password}"
     connection.attempts: "2"
     query: "SELECT * FROM dbo.vehicle"
     mode: "incrementing"
-    topic.prefix: "src-mssql-vehicle"
+    topic.prefix: "src-mssql-vehicle2"
     incrementing.column.name: "id"
     valincrate.non.null: "false"
     transforms: "createKey,extractInt,InsertTopic,InsertSourceDetails"
