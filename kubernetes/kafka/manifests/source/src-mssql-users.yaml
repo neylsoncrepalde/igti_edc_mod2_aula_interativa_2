@@ -2,7 +2,7 @@ apiVersion: "kafka.strimzi.io/v1beta2"
 kind: "KafkaConnector"
 metadata:
   # connector name
-  name: "ingest-src-mssql-vehicle-json-0bf03204"
+  name: "ingest-src-mssql-users"
   namespace: kafka
   labels:
     # kafka connect [cluster] name
@@ -15,20 +15,20 @@ spec:
     value.converter: org.apache.kafka.connect.json.JsonConverter
     key.converter.schemas.enable: true
     value.converter.schemas.enable: true
-    connection.url: "jdbc:sqlserver://terraform-20220529132308340900000004.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
+    connection.url: "jdbc:sqlserver://terraform-20220619155926990500000002.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
     connection.user: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_username}"
     connection.password: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_password}"
     connection.attempts: "2"
-    query: "SELECT * FROM dbo.vehicle"
+    query: "SELECT * FROM dbo.users"
     mode: "incrementing"
-    topic.prefix: "src-mssql-vehicle2"
-    incrementing.column.name: "id"
-    valincrate.non.null: "false"
+    topic.prefix: "mssql-users"
+    incrementing.column.name: "userid"
+    validate.non.null: "false"
     transforms: "createKey,extractInt,InsertTopic,InsertSourceDetails"
     transforms.createKey.type: "org.apache.kafka.connect.transforms.ValueToKey"
-    transforms.createKey.fields: "id"
+    transforms.createKey.fields: "userid"
     transforms.extractInt.type: "org.apache.kafka.connect.transforms.ExtractField$Key"
-    transforms.extractInt.field: "id"
+    transforms.extractInt.field: "userid"
     transforms.InsertTopic.type: "org.apache.kafka.connect.transforms.InsertField$Value"
     transforms.InsertTopic.topic.field: "messagetopic"
     transforms.InsertSourceDetails.type: "org.apache.kafka.connect.transforms.InsertField$Value"

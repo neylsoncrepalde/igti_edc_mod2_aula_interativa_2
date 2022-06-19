@@ -2,11 +2,11 @@ apiVersion: "kafka.strimzi.io/v1beta2"
 kind: "KafkaConnector"
 metadata:
   # connector name
-  name: "sink-s3-vehicle-json-0bf03203"
+  name: "sink-s3-sales"
   namespace: kafka
   labels:
     # kafka connect [cluster] name
-    strimzi.io/cluster: edh
+    strimzi.io/cluster: kafka-class
 spec:
   class: io.confluent.connect.s3.S3SinkConnector
   tasksMax: 1
@@ -15,9 +15,9 @@ spec:
     value.converter: "org.apache.kafka.connect.json.JsonConverter"
     key.converter.schemas.enable: "false"
     value.converter.schemas.enable: "false"
-    topics: "src-mssql-vehicle"
+    topics: "mssql-sales"
     s3.bucket.name: "dl-landing-zone-539445819060"
-    topics.dir: kafka-events/vehicle
+    topics.dir: sales_domain/kafka_events
     s3.region: "us-east-1"
     s3.part.size: 5242880
     flush.size: 500
