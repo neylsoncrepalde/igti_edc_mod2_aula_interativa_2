@@ -15,7 +15,7 @@ spec:
     value.converter: org.apache.kafka.connect.json.JsonConverter
     key.converter.schemas.enable: true
     value.converter.schemas.enable: true
-    connection.url: "jdbc:sqlserver://terraform-20220619155926990500000002.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
+    connection.url: "jdbc:sqlserver://ney-database-source-kafka.ctwliq6jzx6a.us-east-1.rds.amazonaws.com:1433;databaseName=dw"
     connection.user: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_username}"
     connection.password: "${file:/opt/kafka/external-configuration/connector-config-mssql/mssql-credentials.properties:mssql_password}"
     connection.attempts: "2"

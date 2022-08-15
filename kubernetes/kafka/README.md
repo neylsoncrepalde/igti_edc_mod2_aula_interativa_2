@@ -106,123 +106,70 @@ kubectl get kafkaconnect -n kafka
 NAME           DESIRED REPLICAS   READY
 kafka-class    1                  True
 
-# create connectors ingest-src-mssql-vehicle-json-0bf03203
-kubectl apply -f manifests/source/src-mssql-vehicle.yaml -n kafka
+# create connectors 
+kubectl apply -f manifests/source/src-mssql-products.yaml -n kafka
+kubectl apply -f manifests/source/src-mssql-users.yaml -n kafka
+kubectl apply -f manifests/source/src-mssql-sales.yaml -n kafka
 
-$ kafkaconnector.kafka.strimzi.io/ingest-src-mssql-vehicle-json-0bf03203 created
+$ kafkaconnector.kafka.strimzi.io/ingest-src-mssql-products created
+$ kafkaconnector.kafka.strimzi.io/ingest-src-mssql-users created
+$ kafkaconnector.kafka.strimzi.io/ingest-src-mssql-sales created
 
 # check connectors
 kubectl get kafkaconnectors -n kafka
 
 # expected output
-NAME                                     CLUSTER   CONNECTOR CLASS                                 MAX TASKS   READY
-ingest-src-mssql-vehicle-json-0bf03203   edh       io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+NAME                        CLUSTER       CONNECTOR CLASS                                 MAX TASKS   READY
+ingest-src-mssql-products   kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+ingest-src-mssql-sales      kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+ingest-src-mssql-users      kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
 
 # see topic
-kubectl -n kafka exec kafka-class-kafka-0 -c kafka -i -t -- bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+kubectl -n kafka exec kafka-class-kafka-0 -c kafka -it -- bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 
 # expected output
 __consumer_offsets
 connect-cluster-configs
 connect-cluster-offsets
 connect-cluster-status
-src-mssql-vehicle
+mssql-products
+mssql-sales
+mssql-users
 
 # get data on topic with group consumer
-kubectl exec kafka-class-kafka-0 -n kafka -c kafka -i -t -- \
+kubectl exec kafka-class-kafka-0 -n kafka -c kafka -it -- \
   bin/kafka-console-consumer.sh \
     --bootstrap-server localhost:9092 \
     --property print.key=true \
-    --topic src-mssql-vehicle \
+    --topic mssql-sales \
     --group MyConsumer
 
 # get all data on topic
-kubectl exec kafka-class-kafka-0 -n kafka -c kafka -i -t -- \
+kubectl exec kafka-class-kafka-0 -n kafka -c kafka -it -- \
   bin/kafka-console-consumer.sh \
     --bootstrap-server localhost:9092 \
     --property print.key=true \
     --from-beginning \
-    --topic src-mssql-vehicle
+    --topic mssql-sales
 
 # expected json data
-   "schema":{
-      "type":"int32",
-      "optional":false
-   },
-   "payload":1
-}{
-   "schema":{
-      "type":"struct",
-      "fields":[
-         {
-            "type":"int32",
-            "optional":false,
-            "field":"id"
-         },
-         {
-            "type":"int32",
-            "optional":false,
-            "field":"customer_id"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"ano_modelo"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"modelo"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"fabricante"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"ano_veiculo"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"categoria"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"messagetopic"
-         },
-         {
-            "type":"string",
-            "optional":true,
-            "field":"messagesource"
-         }
-      ],
-      "optional":false
-   },
-   "payload":{
-      "id":1,
-      "customer_id":0,
-      "ano_modelo":"2022",
-      "modelo":"Uno",
-      "fabricante":"Fiat",
-      "ano_veiculo":"2022",
-      "categoria":"Hatch",
-      "messagetopic":"src-mssql-vehicle",
-      "messagesource":"sqlserver"
-   }
-}
+{"schema":{"type":"int64","optional":true,"name":"org.apache.kafka.connect.data.Timestamp","version":1},"payload":1660591709250}        {"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"userid"},{"type":"int32","optional":false,"field":"productid"},{"type":"int32","optional":true,"field":"quantity"},{"type":"string","optional":true,"field":"price"},{"type":"int32","optional":true,"field":"paymentmtd"},{"type":"int32","optional":true,"field":"paymentsts"},{"type":"string","optional":true,"field":"dt_insert"},{"type":"int64","optional":true,"name":"org.apache.kafka.connect.data.Timestamp","version":1,"field":"dt_update"},{"type":"string","optional":true,"field":"messagetopic"},{"type":"string","optional":true,"field":"messagesource"}],"optional":false},"payload":{"userid":1,"productid":1,"quantity":5,"price":"$2,565.32","paymentmtd":1,"paymentsts":3,"dt_insert":"2022-08-15 19:28:29.250","dt_update":1660591709250,"messagetopic":"mssql-sales","messagesource":"sqlserver"}}
+{"schema":{"type":"int64","optional":true,"name":"org.apache.kafka.connect.data.Timestamp","version":1},"payload":1660591709250}        {"schema":{"type":"struct","fields":[{"type":"int32","optional":false,"field":"userid"},{"type":"int32","optional":false,"field":"productid"},{"type":"int32","optional":true,"field":"quantity"},{"type":"string","optional":true,"field":"price"},{"type":"int32","optional":true,"field":"paymentmtd"},{"type":"int32","optional":true,"field":"paymentsts"},{"type":"string","optional":true,"field":"dt_insert"},{"type":"int64","optional":true,"name":"org.apache.kafka.connect.data.Timestamp","version":1,"field":"dt_update"},{"type":"string","optional":true,"field":"messagetopic"},{"type":"string","optional":true,"field":"messagesource"}],"optional":false},"payload":{"userid":17,"productid":9,"quantity":9,"price":"$1,059.56","paymentmtd":1,"paymentsts":3,"dt_insert":"2022-08-15 19:28:29.250","dt_update":1660591709250,"messagetopic":"mssql-sales","messagesource":"sqlserver"}}
 
 # create sink to storage data on datalake s3
-kubectl apply -f manifests/sink/sink-s3-vehicle.yaml -n kafka
+kubectl apply -f manifests/sink/sink-s3-products.yaml -n kafka
+kubectl apply -f manifests/sink/sink-s3-users.yaml -n kafka
+kubectl apply -f manifests/sink/sink-s3-sales.yaml -n kafka
 
 # terminal
 $ kubectl get kafkaconnectors -n kafka
 
 # expected output
-NAME                                     CLUSTER   CONNECTOR CLASS                                 MAX TASKS   READY
-ingest-src-mssql-vehicle-json-0bf03203   edh       io.confluent.connect.jdbc.JdbcSourceConnector   1           True
-sink-s3-vehicle-json-0bf03203            edh       io.confluent.connect.s3.S3SinkConnector         1           True
+NAME                        CLUSTER       CONNECTOR CLASS                                 MAX TASKS   READY
+ingest-src-mssql-products   kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+ingest-src-mssql-sales      kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+ingest-src-mssql-users      kafka-class   io.confluent.connect.jdbc.JdbcSourceConnector   1           True
+sink-s3-products            kafka-class   io.confluent.connect.s3.S3SinkConnector         1           True
+sink-s3-sales               kafka-class   io.confluent.connect.s3.S3SinkConnector         1           True
+sink-s3-users               kafka-class   io.confluent.connect.s3.S3SinkConnector         1           True
 ```

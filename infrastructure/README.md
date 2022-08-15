@@ -1,23 +1,9 @@
-## Deployment the Stack with Terraform :terraform:
+## Deployment the Stack with *eksctl*
 ```sh
-cd infrastructure/aws
+cd infrastructure
 
-# init terraform
-terraform init
-
-# see the execution plan
-terraform plan
-
-# apply the configs
-terraform apply
-
-# variables environment
-aws eks list-clusters --region us-east-1
-# output
-<CLUSTER_NAME>
-
-# update kubeconfig context
-aws eks --region us-east-1 update-kubeconfig --name <CLUSTER_NAME>
+# Change cluster name on "deploy_eks.sh" file
+sh deploy_eks.sh
 
 # access cluster
 kubectl get nodes
@@ -28,4 +14,7 @@ ip-10-0-2-101.us-east-2.compute.internal   Ready    <none>   24s   v1.20.11-eks-
 ip-10-0-2-42.us-east-2.compute.internal    Ready    <none>   24s   v1.20.11-eks-f17b81
 ip-10-0-3-104.us-east-2.compute.internal   Ready    <none>   23s   v1.20.11-eks-f17b81
 ip-10-0-3-198.us-east-2.compute.internal   Ready    <none>   24s   v1.20.11-eks-f17b81
+
+# After implementing the exercise, delete the cluster
+sh delete_eks.sh
 ```
