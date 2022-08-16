@@ -27,7 +27,7 @@ spark.sparkContext.setLogLevel('ERROR')
 sales = (
     spark.readStream
     .format('kafka')
-    .option("kafka.bootstrap.servers", "10.100.247.158:9092")
+    .option("kafka.bootstrap.servers", "10.100.247.158:9092") # CHANGE HOST FOR YOUR KAFKA CLUSTER!!
     .option("subscribe", "mssql-sales")
     .option("startingOffsets", "earliest")
     .load()
